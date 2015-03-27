@@ -366,6 +366,12 @@ bool PVRDemoData::LoadDemoData(void)
       time_t timeNow = time(NULL);
       struct tm* now = localtime(&timeNow);
 
+      /* type */
+      if (XMLUtils::GetInt(pTimerNode, "type", iTmp))
+        timer.iTimerType = iTmp;
+      else
+        timer.iTimerType = PVR_TIMERTYPE_MANUAL_ONCE;
+
       /* channel id */
       if (!XMLUtils::GetInt(pTimerNode, "channelid", iTmp))
         continue;
@@ -412,7 +418,7 @@ bool PVRDemoData::LoadDemoData(void)
         }
       }
 
-      XBMC->Log(LOG_DEBUG, "loaded timer '%s' channel '%d' start '%d' end '%d'", timer.strTitle.c_str(), timer.iChannelId, timer.startTime, timer.endTime);
+      XBMC->Log(LOG_DEBUG, "loaded timer '%s' channel '%d' start '%d' end '%d' timer type '%i'", timer.strTitle.c_str(), timer.iChannelId, timer.startTime, timer.endTime, timer.iTimerType);
       m_timers.push_back(timer);
     }
   }
@@ -631,9 +637,10 @@ PVR_ERROR PVRDemoData::GetTimers(ADDON_HANDLE handle)
     xbmcTimer.startTime         = timer.startTime;
     xbmcTimer.endTime           = timer.endTime;
     xbmcTimer.state             = timer.state;
+    xbmcTimer.iTimerType        = timer.iTimerType;
 
-    strncpy(xbmcTimer.strTitle, timer.strTitle.c_str(), sizeof(timer.strTitle) - 1);
-    strncpy(xbmcTimer.strSummary, timer.strSummary.c_str(), sizeof(timer.strSummary) - 1);
+    strncpy(xbmcTimer.strTitle, timer.strTitle.c_str(), sizeof(xbmcTimer.strTitle) - 1);
+    strncpy(xbmcTimer.strSummary, timer.strSummary.c_str(), sizeof(xbmcTimer.strSummary) - 1);
 
     PVR->TransferTimerEntry(handle, &xbmcTimer);
   }
